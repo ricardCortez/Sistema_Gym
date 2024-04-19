@@ -2,6 +2,21 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+class Usuario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100))
+    username = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+    tipo_usuario = db.Column(db.String(20))  # Puede ser 'admin', 'dueño', 'counter', etc.
+
+    def __init__(self, nombre, username, password, email, tipo_usuario):
+        self.nombre = nombre
+        self.username = username
+        self.password = password
+        self.email = email
+        self.tipo_usuario = tipo_usuario
+
 class Socio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
@@ -58,10 +73,18 @@ class Asistencia(db.Model):
     tipo_usuario = db.Column(db.String(10))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
-class Usuario(db.Model):
+class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(100))
-    email = db.Column(db.String(100))
-    tipo_usuario = db.Column(db.String(20))  # Puede ser 'admin', 'socio', 'entrenador', etc.
+    precio = db.Column(db.Numeric(10, 2))
+    stock = db.Column(db.Integer)
+    categoria = db.Column(db.String(50))
+
+class Venta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cantidad = db.Column(db.Integer)
+    fecha_venta = db.Column(db.Date)
+    producto_id = db.Column(db.Integer, db.ForeignKey('producto.id'))
+    producto = db.relationship('Producto', backref=db.backref('ventas', lazy=True))
+    socio_id = db.Column(db.Integer, db.ForeignKey('socio.id'))
+    socio = db.relationship('Socio', backref=db.backref('ventas', lazy=True))

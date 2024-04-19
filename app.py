@@ -1,11 +1,12 @@
 from flask import Flask, render_template
 from conexionDB import Config
 from database import db
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
-#migrate = Migrate(app, db)
+migrate = Migrate(app, db)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'  # Reemplaza 'tu_clave_secreta_aqui' con una clave secreta única y segura
 
 
