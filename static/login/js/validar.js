@@ -36,7 +36,7 @@ $(document).ready(function() {
                         showConfirmButton: false
                     });
                     setTimeout(function() {
-                        window.location.href = '/';  // Redirige a la página de inicio después del login exitoso
+                        window.location.href = '/main';  // Redirige a la página de inicio después del login exitoso
                     }, 1500);
                 } else {
                     Swal.fire({

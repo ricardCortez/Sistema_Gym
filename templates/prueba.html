@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <title>Title</title>
+</head>
+<body>
+
+    <!-- Botón para cerrar sesión -->
+    <button name="cerrarSesion">Cerrar Sesión</button>
+
+    {% if 'id' in session and 'tipo_usuario' in session %}
+        <h1>Bienvenido, {{ session['nombre'] }}</h1>
+        <p>Tipo de usuario: {{ session['tipo_usuario'] }}</p>
+    {% else %}
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="static/main/js/main.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+</body>
+</html>

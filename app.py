@@ -8,6 +8,8 @@ app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
 app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'  # Reemplaza 'tu_clave_secreta_aqui' con una clave secreta única y segura
+app.config['SESSION_PERMANENT'] = True # si es true la sesion no expira
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 
 
 if __name__ == '__main__':
