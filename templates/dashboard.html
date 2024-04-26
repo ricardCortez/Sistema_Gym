@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 	<link rel="stylesheet" href="static/main/css/style_dashboard.css">
     <title>Dashboard del Administrador</title>
     <!-- Agrega tus enlaces a los archivos de estilo CSS y cualquier otra dependencia aquí -->
@@ -12,21 +14,97 @@
 <body>
     <div class="sidebar" id="sidebar">
     <div class="logo">
-        <img src="logo.png" alt="Logo">
+        <img src="static/main/image/Artboard.png" alt="Logo" id="logo">
     </div>
-    <ul class="nav-links">
-        <li><a href="#"><i class="fas fa-home"></i> Inicio</a></li>
-        <li><a href="#"><i class="fas fa-user"></i> Perfil</a></li>
-        <li><a href="#"><i class="fas fa-cog"></i> Configuración</a></li>
-      </ul>
+        <ul class="nav-links">
+
+          <li class="dropdown">
+            <a href="#"><i class="material-icons">fitness_center</i> Acción 1</a>
+
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+          </li>
+
+          <li class="dropdown">
+            <a href="#"><i class="material-icons">settings_accessibility</i>Acción 2</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+          </li>
+
+         <li class="dropdown">
+            <a href="#"><i class="material-icons">token</i>Acción 3</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+          </li>
+
+        <li class="dropdown">
+            <a href="#"><i class="material-icons">cyclone</i>Acción 4</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+        </li>
+
+        <li class="dropdown">
+            <a href="#">Acción 5</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+        </li>
+
+        <li class="dropdown">
+            <a href="#">Acción 6</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+        </li>
+
+        <li class="dropdown">
+            <a href="#">Acción 7</a>
+            <div class="dropdown-content">
+              <a href="#">Subacción 1</a>
+              <a href="#">Subacción 2</a>
+              <a href="#">Subacción 3</a>
+            </div>
+        </li>
+
+        </ul>
     </div>
     <div class="content">
       <header>
-        <div class="user-info">Perfil</div>
+        <div class="user-info">Barra</div>
+          <i class="fa-solid fa-shield"></i>
+          <div class="info-top">
+            {% if 'id' in session and 'tipo_usuario' in session %}
+                <h1>Bienvenido, {{ session['nombre'] }}</h1>
+                <p>Tipo de usuario: {{ session['tipo_usuario'] }}</p>
+                {% else %}
+            {% endif %}
+          </div>
+        <button name="cerrarSesion">Cerrar Sesión</button>
       </header>
       <main>
         <!-- Contenido de la página -->
       </main>
-</div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="static/main/js/main.js"></script>
+    <script src="static/main/js/sidebar.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </body>
 </html>

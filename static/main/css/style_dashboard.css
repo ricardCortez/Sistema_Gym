@@ -7,24 +7,25 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
+  width: 100px;
   height: 100vh;
   background-color: #333;
   color: #fff;
-  overflow-y: auto;
+  overflow-y: visible;
 }
 
 .logo {
-  padding: 20px;
+  padding: 10px;
 }
 
 .nav-links {
   list-style-type: none;
   padding: 0;
+  margin-top: 60px;
 }
 
 .nav-links li {
-  padding: 10px 20px;
+  padding: 10px 10px;
 }
 
 .nav-links li a {
@@ -51,8 +52,8 @@ body {
 header {
   position: fixed;
   top: 0;
-  left: 250px;
-  width: calc(100% - 250px);
+  left: 100px; /* Empieza después de la barra lateral */
+  width: calc(100% - 140px); /* Ancho restante de la ventana */
   background-color: #fff;
   padding: 10px 20px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
@@ -71,4 +72,37 @@ header {
 
 main {
   margin-top: 60px;
+}
+
+.logo {
+    width: 80px;
+    height: 100px
+}
+
+#logo {
+    width:80px;
+    height: 100px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #333;
+  min-width: 160px;
+  z-index: 1;
+  max-height: calc(100vh - 100px); /* Tamaño máximo ajustado según tu diseño */
+  overflow-y: auto; /* Habilita el desplazamiento vertical si es necesario */
+  padding: 10px; /* Añade un espacio interior al menú desplegable */
+  border-radius: 5px; /* Agrega bordes redondeados al menú */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Agrega una sombra para resaltar */
+}
+
+.dropdown-content a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
 }

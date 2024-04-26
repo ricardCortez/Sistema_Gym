@@ -1,8 +1,13 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session
 from database import db, Usuario
 
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
+
+@views_blueprint.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
+
 
 # Ruta para el inicio de sesión
 @views_blueprint.route('/', methods=['GET', 'POST'])
