@@ -17,72 +17,19 @@
         <img src="static/main/image/Artboard.png" alt="Logo" id="logo">
     </div>
         <ul class="nav-links">
-
-          <li class="dropdown">
-            <a href="#"><i class="material-icons">fitness_center</i> Acción 1</a>
-
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-          </li>
-
-          <li class="dropdown">
-            <a href="#"><i class="material-icons">settings_accessibility</i>Acción 2</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-          </li>
-
-         <li class="dropdown">
-            <a href="#"><i class="material-icons">token</i>Acción 3</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-          </li>
-
-        <li class="dropdown">
-            <a href="#"><i class="material-icons">cyclone</i>Acción 4</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-        </li>
-
-        <li class="dropdown">
-            <a href="#">Acción 5</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-        </li>
-
-        <li class="dropdown">
-            <a href="#">Acción 6</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-        </li>
-
-        <li class="dropdown">
-            <a href="#">Acción 7</a>
-            <div class="dropdown-content">
-              <a href="#">Subacción 1</a>
-              <a href="#">Subacción 2</a>
-              <a href="#">Subacción 3</a>
-            </div>
-        </li>
-
-        </ul>
+        {% for option in menu_options %}
+            <li class="dropdown">
+                <a href="{{ option['url'] }}"><i class="material-icons">{{ option['icon'] }}</i> {{ option['name'] }}</a>
+                {% if option.subactions %}
+                <div class="dropdown-content">
+                    {% for subaction in option.subactions %}
+                    <a href="{{ subaction['url'] }}">{{ subaction['name'] }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
     </div>
     <div class="content">
       <header>

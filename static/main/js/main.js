@@ -13,7 +13,24 @@ $(document).ready(function() {
                 window.location.href = '/';
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error al cerrar la sesión.");
+                console.error("Error al cerrar la sesión: " + textStatus);
+            }
+        });
+    });
+
+    // Cargar contenido dinámicamente en el dashboard
+    $('.nav-links a').on('click', function(e) {
+        e.preventDefault();  // Prevenir la recarga de la página
+        var url = $(this).attr('href');  // Obtener la URL del atributo href del link
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function(data) {
+                $('.content').html(data);  // Actualizar el contenido principal con el nuevo HTML
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error al cargar la sección: " + textStatus);
             }
         });
     });
