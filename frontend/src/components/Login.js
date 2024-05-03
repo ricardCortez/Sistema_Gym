@@ -1,56 +1,91 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import './style/Login.css'; // Asegúrate de que la ruta del estilo es correcta
+import imageLogo from './image/image_logo.jpeg';
+import { useUser } from './UserContext'; // Asegúrate de que la ruta es correcta
+
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const { setUser } = useUser();
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!username || !password) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Por favor, complete todos los campos.',
+            });
+            return;
+        }
+
         try {
             const response = await fetch('/api/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ username, password }),
             });
+
             if (response.ok) {
                 const data = await response.json();
-                console.log('Login successful:', data);
-                // Aquí puedes redirigir al usuario al dashboard o manejar el estado de la sesión
+                setUser(data); // Actualiza el estado del usuario con los datos obtenidos
+                console.log("Usuario logueado:", data);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Inicio de sesión exitoso',
+                    text: 'Has sido logueado correctamente.',
+                });
+                navigate('/Dashboard'); // Usa history.push para redirigir
             } else {
-                setError('Credenciales inválidas');
+                const errorData = await response.json();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Inicio de sesión fallido',
+                    text: errorData.message,
+                });
             }
         } catch (error) {
-            setError('Error al iniciar sesión');
+            console.error("Error en la petición:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor.',
+            });
         }
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Usuario:</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
+        <div className="login-container">
+            <div className="login-content">
+                <div className="login-image">
+                    <img src={imageLogo} alt="Logo" />
                 </div>
-                <div>
-                    <label>Contraseña:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                <div className="login-form">
+                    <form onSubmit={handleSubmit}>
+                        <label htmlFor="username">Usuario</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Ingresa tu usuario"
+                        />
+                        <label htmlFor="password">Contraseña</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Ingresa tu contraseña"
+                        />
+                        <button type="submit">Iniciar Sesión</button>
+                    </form>
                 </div>
-                <div>
-                    <button type="submit">Iniciar Sesión</button>
-                </div>
-                {error && <div>{error}</div>}
-            </form>
+            </div>
         </div>
     );
 }

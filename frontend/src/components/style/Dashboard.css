@@ -1,0 +1,145 @@
+/*import '@fortawesome/fontawesome-free/css/all.min.css';*/
+
+
+/* Dashboard.css */
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+/* Estilo para el ícono en el tema claro */
+.dashboard.light .settings-icon {
+  color: #fff;/* Color oscuro para el ícono en tema claro */
+}
+
+/* Estilo para el ícono en el tema oscuro */
+.dashboard.dark .settings-icon {
+  color: #333; /* Color claro para el ícono en tema oscuro */
+}
+
+.sidebar {
+  width: 100px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.sidebar-logo {
+  width: 80%;
+  margin-right: 10px; /* Ajusta el espacio entre el logo y el ícono */
+  margin-bottom: 20px; /* Espacio entre el logo y los links */
+  cursor: pointer; /* Indica que el logo es clickeable */
+  transition: transform 0.1s ease;
+}
+
+.sidebar-logo:active {
+  transform: scale(1.95);
+}
+
+.settings-icon {
+  margin-right: 20px; /* Asegura espacio entre el ícono y el avatar */
+  font-size: 20px; /* Ajusta el tamaño según necesites */
+  cursor: pointer;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.top-bar {
+  background-color: #34495e;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 1em;
+  color: white;
+}
+
+.user-role {
+  font-size: 0.85em;
+  color: #ccc; /* Color más claro para el tipo de usuario */
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.sidebar-link {
+  display: block;
+  margin: 10px 0;
+  color: white;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  background-color: #2980b9;
+}
+
+.dropdown-menu {
+  position: absolute;
+  background-color: #34495e;
+  padding: 10px;
+  box-shadow: 0px 8px 16px 0 rgba(0,0,0,0.2);
+  z-index: 1;
+  right: 0;
+  top: 100%;
+}
+
+.dropdown-menu a, .dropdown-menu button {
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  display: block;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.dropdown-menu a:hover, .dropdown-menu button:hover {
+  background-color: #2980b9;
+}
+
+/* style.css */
+.dashboard.light {
+  background-color: #fff;
+  color: black;
+}
+
+.dashboard.dark {
+  background-color: #333;
+  color: white;
+}
+
+/* Añade estilos específicos para otros componentes según sea necesario */
