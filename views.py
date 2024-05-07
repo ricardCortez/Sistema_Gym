@@ -1,4 +1,5 @@
 from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
+from flask_login import login_required, current_user
 from database import db, Usuario
 from utils import menu_manager
 
@@ -76,9 +77,34 @@ def get_user():
             "user": {
                 "id": usuario.id,
                 "nombre": usuario.nombre,
-                "tipo_usuario": usuario.tipo_usuario
+                "tipo_usuario": usuario.tipo_usuario,
+                "email": usuario.email
             }
         }), 200
 
     else:
         return jsonify({"message": "User not found"}), 404
+
+@views_blueprint.route('/api/update_user', methods=['POST'])
+def update_user():
+    data = request.json
+    user_id = data.get('id')  # Asumiendo que el ID del usuario viene en los datos JSON
+    usuario = Usuario.query.get(user_id)
+
+    if not usuario:
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        if 'nombre' in data:
+            usuario.nombre = data['nombre']
+        if 'tipo_usuario' in data:
+            usuario.tipo_usuario = data['tipo_usuario']
+        if 'email' in data:
+            usuario.email = data['email']
+
+        db.session.commit()
+        return jsonify({"message": "User updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+

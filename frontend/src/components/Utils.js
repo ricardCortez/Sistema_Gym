@@ -6,7 +6,7 @@ export const menuOptions = {
     { name: 'Finanzas', url: '/finanzas' },
     { name: 'Promociones', url: '/promociones' },
     { name: 'Productos', url: '/productos' },
-    { name: 'Perfil', url: '/perfil' }
+    { name: 'Perfil', url: 'perfil' }
   ],
   dueño: [
     { name: 'Reportes', url: '/reportes' },

@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_cors import CORS
+from flask_login import LoginManager  # Importa LoginManager
 from conexionDB import Config
-from database import db
+from database import db, Usuario  # Asegúrate de importar Usuario si vas a usarlo en el cargador de usuario
 from flask_migrate import Migrate
 from views import login, get_user
 
@@ -10,8 +11,17 @@ CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
-app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'  # Reemplaza 'tu_clave_secreta_aqui' con una clave secreta única y segura
-app.config['SESSION_PERMANENT'] = True # si es true la sesion no expira
+app.config['SECRET_KEY'] = 'tu_clave_secreta_aqui'
+
+# Configuración de Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)  # Inicializa Flask-Login con la instancia de la app
+
+@login_manager.user_loader  # Define el cargador de usuario
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
+app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.add_url_rule('/api/login', view_func=login, methods=['POST'])
 

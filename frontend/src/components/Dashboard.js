@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { getMenu } from './Utils';
-import { useTheme } from './ThemeContext';  // Verifica que la ruta a ThemeContext sea correcta
+import { useTheme } from './ThemeContext';
 import './style/Dashboard.css';
+
+import UserProfile from './UserProfile'; // ruta en el campo dinamico
 
 // Importa las imágenes
 import logoImage from './image/image_logo.jpeg';
@@ -42,8 +44,9 @@ const Dashboard = () => {
 
   const links = getMenu(user.tipo_usuario);
 
-  const handleLinkClick = (url) => {
-    navigate(url);
+  const handleLinkClick = (link) => {
+    console.log(`Navigating to ${link.name}`);  // Imprime el nombre del link en la consola
+    navigate(link.url);
   };
 
   const handleLogout = async () => {
@@ -69,18 +72,16 @@ const Dashboard = () => {
   };
 
   const handleSettingsClick = (event) => {
-  event.stopPropagation();  // Detiene la propagación del evento
-  toggleTheme();  // Aquí asumo que quieres cambiar el tema con este botón, ajusta según lo que debe hacer el botón
-};
+    event.stopPropagation();
+    toggleTheme();
+  };
 
   return (
     <div className={`dashboard ${theme}`}>
       <div className="sidebar">
-        <div className="logo-settings">
-          <img src={logoImage} alt="Logo" className="sidebar-logo" onClick={() => navigate('/dashboard')} />
-        </div>
+        <img src={logoImage} alt="Logo" className="sidebar-logo" onClick={() => navigate('/dashboard')} />
         {links.map((link, index) => (
-          <button key={index} onClick={() => handleLinkClick(link.url)} className="sidebar-link">
+          <button key={index} onClick={() => handleLinkClick(link)} className="sidebar-link">
             {link.name}
           </button>
         ))}
@@ -88,9 +89,8 @@ const Dashboard = () => {
       <div className="main-content">
         <header className="top-bar">
           <h1>Dashboard</h1>
-
           <div className="user-info" onClick={toggleDropdown}>
-          <i className="fas fa-cog settings-icon" onClick={handleSettingsClick}></i>
+            <i className="fas fa-cog settings-icon" onClick={handleSettingsClick}></i>
             <img src={userAvatar} alt="User Avatar" className="user-avatar"/>
             <div className="user-text">
               <div className="user-name">{user.nombre}</div>
@@ -103,12 +103,12 @@ const Dashboard = () => {
                 <button onClick={handleLogout}>Cerrar Sesión</button>
               </div>
             )}
-
           </div>
         </header>
         <main className="content">
-          {/* Contenido dinámico aquí */}
-
+          <Routes>
+            <Route path="perfil" element={<UserProfile />} />
+          </Routes>
         </main>
       </div>
     </div>
