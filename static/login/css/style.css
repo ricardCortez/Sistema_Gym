@@ -639,7 +639,7 @@ select.form-control:focus::-ms-value {
   .d-md-flex {
     display: -webkit-box !important;
     display: -ms-flexbox !important;
-    display: flex !important; }////////////////////////////////////////////////////////////////
+    display: flex !important; }
 
 @media (min-width: 992px) {
   .d-lg-none {
@@ -661,6 +661,7 @@ select.form-control:focus::-ms-value {
     display: -ms-flexbox !important;
     display: flex !important; }
   .d-lg-inline-flex {
+    /*noinspection CssInvalidPropertyValue*/
     display: -webkit-inline-box !important;
     display: -ms-inline-flexbox !important;
     display: inline-flex !important; } }
@@ -685,6 +686,7 @@ select.form-control:focus::-ms-value {
     display: -ms-flexbox !important;
     display: flex !important; }
   .d-xl-inline-flex {
+    /*noinspection CssInvalidPropertyValue*/
     display: -webkit-inline-box !important;
     display: -ms-inline-flexbox !important;
     display: inline-flex !important; } }
@@ -709,6 +711,7 @@ select.form-control:focus::-ms-value {
     display: -ms-flexbox !important;
     display: flex !important; }
   .d-print-inline-flex {
+    /*noinspection CssInvalidPropertyValue*/
     display: -webkit-inline-box !important;
     display: -ms-inline-flexbox !important;
     display: inline-flex !important; } }
@@ -881,6 +884,7 @@ select.form-control:focus::-ms-value {
 
 .align-self-auto {
   -ms-flex-item-align: auto !important;
+  /*noinspection CssInvalidPropertyValue*/
   -ms-grid-row-align: auto !important;
   align-self: auto !important; }
 
@@ -1013,6 +1017,7 @@ select.form-control:focus::-ms-value {
     align-content: stretch !important; }
   .align-self-sm-auto {
     -ms-flex-item-align: auto !important;
+    /*noinspection CssInvalidPropertyValue*/
     -ms-grid-row-align: auto !important;
     align-self: auto !important; }
   .align-self-sm-start {
@@ -1140,6 +1145,7 @@ select.form-control:focus::-ms-value {
     align-content: stretch !important; }
   .align-self-md-auto {
     -ms-flex-item-align: auto !important;
+    /*noinspection CssInvalidPropertyValue*/
     -ms-grid-row-align: auto !important;
     align-self: auto !important; }
   .align-self-md-start {
@@ -1267,6 +1273,7 @@ select.form-control:focus::-ms-value {
     align-content: stretch !important; }
   .align-self-lg-auto {
     -ms-flex-item-align: auto !important;
+    /*noinspection CssInvalidPropertyValue*/
     -ms-grid-row-align: auto !important;
     align-self: auto !important; }
   .align-self-lg-start {
@@ -1394,6 +1401,7 @@ select.form-control:focus::-ms-value {
     align-content: stretch !important; }
   .align-self-xl-auto {
     -ms-flex-item-align: auto !important;
+    /*noinspection CssInvalidPropertyValue*/
     -ms-grid-row-align: auto !important;
     align-self: auto !important; }
   .align-self-xl-start {
@@ -1474,6 +1482,7 @@ select.form-control:focus::-ms-value {
   position: fixed !important; }
 
 .position-sticky {
+  /*noinspection CssInvalidPropertyValue*/
   position: -webkit-sticky !important;
   position: sticky !important; }
 
@@ -1491,8 +1500,9 @@ select.form-control:focus::-ms-value {
   left: 0;
   z-index: 1030; }
 
-@supports ((position: -webkit-sticky) or (position: sticky)) {
+@supports ((/*noinspection CssInvalidPropertyValue*/position: -webkit-sticky) or (position: sticky)) {
   .sticky-top {
+    /*noinspection CssInvalidPropertyValue*/
     position: -webkit-sticky;
     position: sticky;
     top: 0;
@@ -1659,8 +1669,7 @@ select.form-control:focus::-ms-value {
 .mx-3 {
   margin-right: 1rem !important; }
 
-.mb-3, //////////////////////////////////////////////////////////////////
-
+.mb-3,
 .pb-4,
 .py-4 {
   padding-bottom: 1.5rem !important; }
@@ -2859,7 +2868,7 @@ select.form-control:focus::-ms-value {
   .text-md-right {
     text-align: right !important; }
   .text-md-center {
-    text-align: center !important; } }////////////////////////////////////////////////////////////////
+    text-align: center !important; } }
 
 @media (min-width: 992px) {
   .text-lg-left {
@@ -2968,6 +2977,7 @@ a.text-dark:hover, a.text-dark:focus {
   color: rgba(255, 255, 255, 0.5) !important; }
 
 .text-hide {
+  /*noinspection CssInvalidPropertyValue*/
   font: 0/0 a;
   color: transparent;
   text-shadow: none;
@@ -3123,15 +3133,14 @@ h1, h2, h3, h4, h5,
   border-radius: 5px;
   -webkit-box-shadow: none;
   box-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.1); }////////////////////////////////////////////////
-
+  border: 1px solid rgba(0, 0, 0, 0.1); }
 
 .btn {
   cursor: pointer;
   -webkit-box-shadow: none !important;
   box-shadow: none !important;
   font-size: 15px;
-  padding: 10px 20px; }////////////////////////////
+  padding: 10px 20px; }
   .btn:hover, .btn:active, .btn:focus {
     outline: none; }
   .btn.btn-primary {

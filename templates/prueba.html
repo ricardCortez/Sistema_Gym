@@ -2,26 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css" rel="stylesheet">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Face Detection and Training</title>
 </head>
 <body>
+    <h1>Webcam for Face Training and Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="capture">Capture Image</button>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <input type="text" id="label" placeholder="Enter person's name for training" />
+    <button onclick="sendData(true)">Train</button>
+    <button onclick="sendData(false)">Detect</button>
 
-    <!-- Botón para cerrar sesión -->
-    <button name="cerrarSesion">Cerrar Sesión</button>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const captureButton = document.getElementById('capture');
 
-    {% if 'id' in session and 'tipo_usuario' in session %}
-        <h1>Bienvenido, {{ session['nombre'] }}</h1>
-        <p>Tipo de usuario: {{ session['tipo_usuario'] }}</p>
-    {% else %}
-    {% endif %}
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(console.error);
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="static/main/js/main.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        captureButton.addEventListener('click', function() {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        });
 
+        function sendData(isTraining) {
+            const imageData = canvas.toDataURL('image/png');
+            const label = document.getElementById('label').value;
+
+            fetch(isTraining ? 'http://localhost:5000/train' : 'http://localhost:5000/detect_faces', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image: imageData,
+                    label: isTraining ? label : ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => alert(JSON.stringify(data)))
+            .catch(console.error);
+        }
+    </script>
 </body>
 </html>

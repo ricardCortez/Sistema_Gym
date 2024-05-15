@@ -4,7 +4,7 @@ from flask_login import LoginManager  # Importa LoginManager
 from conexionDB import Config
 from database import db, Usuario  # Asegúrate de importar Usuario si vas a usarlo en el cargador de usuario
 from flask_migrate import Migrate
-from views import login, get_user
+from views import login
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
