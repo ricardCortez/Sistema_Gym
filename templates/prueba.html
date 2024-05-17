@@ -1,53 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webcam Face Detection and Training</title>
+    <title>Registro de Captura de Rostros</title>
 </head>
 <body>
-    <h1>Webcam for Face Training and Detection</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-    <button id="capture">Capture Image</button>
-    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-    <input type="text" id="label" placeholder="Enter person's name for training" />
-    <button onclick="sendData(true)">Train</button>
-    <button onclick="sendData(false)">Detect</button>
+    <h1>Registro de Captura de Rostros</h1>
 
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        const captureButton = document.getElementById('capture');
+    <h2>Registrar Socio</h2>
+    <form action="/add/socio" method="post">
+        <label for="nombre_socio">Nombre:</label>
+        <input type="text" id="nombre_socio" name="nombre" required><br><br>
+        <label for="codigo_socio">Código Único:</label>
+        <input type="text" id="codigo_socio" name="codigo_unico" required><br><br>
+        <button type="submit">Iniciar Captura para Socio</button>
+    </form>
 
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(console.error);
+    <h2>Registrar Entrenador</h2>
+    <form action="/add/entrenador" method="post">
+        <label for="nombre_entrenador">Nombre:</label>
+        <input type="text" id="nombre_entrenador" name="nombre" required><br><br>
+        <label for="codigo_entrenador">Código Único:</label>
+        <input type="text" id="codigo_entrenador" name="codigo_unico" required><br><br>
+        <button type="submit">Iniciar Captura para Entrenador</button>
+    </form>
 
-        captureButton.addEventListener('click', function() {
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        });
 
-        function sendData(isTraining) {
-            const imageData = canvas.toDataURL('image/png');
-            const label = document.getElementById('label').value;
-
-            fetch(isTraining ? 'http://localhost:5000/train' : 'http://localhost:5000/detect_faces', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    image: imageData,
-                    label: isTraining ? label : ''
-                })
-            })
-            .then(response => response.json())
-            .then(data => alert(JSON.stringify(data)))
-            .catch(console.error);
-        }
-    </script>
 </body>
 </html>

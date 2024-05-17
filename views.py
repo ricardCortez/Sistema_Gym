@@ -1,12 +1,9 @@
 import os
-
+import imutils
 import cv2
+from datetime import datetime, date
 from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
-#from flask_login import login_required, current_user
-from database import db, Usuario
-from face_detection import FaceDetector
-
-# from views import views_blueprint
+from database import db, Usuario, Socio, Entrenador, RegistroRostros, Asistencia
 
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
@@ -111,36 +108,3 @@ def update_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-
-
-face_detector = FaceDetector()
-
-
-@views_blueprint.route('/train', methods=['POST'])
-def train():
-    # Supón que recibes imágenes etiquetadas para el entrenamiento
-    images = [cv2.imread(file) for file in os.listdir('path_to_training_images')]
-    labels = [int(label) for label in open('path_to_labels_file').read().split()]
-    face_detector.train_recognizer(images, labels)
-    return jsonify({'message': 'Model trained successfully'})
-
-
-@views_blueprint.route('/detect_faces', methods=['POST'])
-def detect_faces():
-    file = request.files['image']
-    if not file:
-        return jsonify({'error': 'No file provided'}), 400
-
-    img_bytes = file.read()
-    faces_detected = face_detector.process_image(img_bytes)
-
-    if not faces_detected:
-        return jsonify({'message': 'No faces detected'}), 200
-
-    # Construye una respuesta asegurando que todo es serializable y apropiado para JSON
-    faces_info = [
-        {'face_id': i, 'label': str(face['label']), 'confidence': float(face['confidence']), 'box': face['box']}
-        for i, face in enumerate(faces_detected)
-    ]
-
-    return jsonify({'message': f'{len(faces_detected)} faces detected', 'faces': faces_info}), 200

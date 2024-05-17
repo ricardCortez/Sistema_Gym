@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -20,13 +21,58 @@ class Usuario(db.Model):
 class Socio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
+    apellidos = db.Column(db.String(100))  # Nueva columna para los apellidos
     direccion = db.Column(db.String(200))
     telefono = db.Column(db.String(20))
     fecha_nacimiento = db.Column(db.Date)
     fecha_registro = db.Column(db.Date, default=db.func.current_date())
     estado_membresia = db.Column(db.String(20))
-    foto_ruta = db.Column(db.String(200))
+    socio_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    codigo_unico = db.Column(db.String(36), unique=True)
+
+    def __init__(self, nombre, apellidos, direccion, telefono, fecha_nacimiento, estado_membresia, socio_id, codigo_unico):
+        self.nombre = nombre
+        self.apellidos = apellidos  # Asegúrate de incluir los apellidos en el constructor
+        self.direccion = direccion
+        self.telefono = telefono
+        self.fecha_nacimiento = fecha_nacimiento
+        self.estado_membresia = estado_membresia
+        self.socio_id = socio_id
+        self.codigo_unico = codigo_unico
+
+class Entrenador(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100))
+    apellidos = db.Column(db.String(100))
+    especialidad = db.Column(db.String(100))
+    celular = db.Column(db.String(20))
+    sexo = db.Column(db.String(10))
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    codigo_unico = db.Column(db.String(36), unique=True)
+
+    def __init__(self, nombre, apellidos, especialidad, celular, sexo, usuario_id, codigo_unico):
+        self.nombre = nombre
+        self.apellidos = apellidos
+        self.especialidad = especialidad
+        self.celular = celular
+        self.sexo = sexo
+        self.usuario_id = usuario_id
+        self.codigo_unico = codigo_unico
+
+class RegistroRostros(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    socio_id = db.Column(db.Integer, db.ForeignKey('socio.id'), nullable=True)
+    entrenador_id = db.Column(db.Integer, db.ForeignKey('entrenador.id'), nullable=True)
+    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    ruta = db.Column(db.String(200))
+
+    socio = db.relationship('Socio', backref=db.backref('registros_rostros', lazy=True))
+    entrenador = db.relationship('Entrenador', backref=db.backref('registros_rostros', lazy=True))
+
+    def __init__(self, socio_id=None, entrenador_id=None, ruta=None):
+        self.socio_id = socio_id
+        self.entrenador_id = entrenador_id
+        self.ruta = ruta
 
 class Membresia(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,15 +93,6 @@ class Pago(db.Model):
     membresia_id = db.Column(db.Integer, db.ForeignKey('membresia.id'))
     membresia = db.relationship('Membresia', backref=db.backref('pagos', lazy=True))
 
-class Entrenador(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100))
-    apellidos = db.Column(db.String(100))
-    especialidad = db.Column(db.String(100))
-    celular = db.Column(db.String(20))
-    sexo = db.Column(db.String(10))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
-
 class Entrenamiento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fecha_inicio = db.Column(db.Date)
@@ -70,8 +107,11 @@ class Asistencia(db.Model):
     fecha = db.Column(db.Date)
     hora_entrada = db.Column(db.Time)
     hora_salida = db.Column(db.Time)
-    tipo_usuario = db.Column(db.String(10))
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
+    socio_id = db.Column(db.Integer, db.ForeignKey('socio.id'), nullable=True)
+    entrenador_id = db.Column(db.Integer, db.ForeignKey('entrenador.id'), nullable=True)
+
+    socio = db.relationship('Socio', backref=db.backref('asistencias', lazy=True))
+    entrenador = db.relationship('Entrenador', backref=db.backref('asistencias', lazy=True))
 
 class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
