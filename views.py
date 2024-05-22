@@ -110,14 +110,18 @@ def update_user():
         return jsonify({"error": str(e)}), 500
 
 
-@views_blueprint.route('/api/upload', methods=['POST'])
-def upload_image():
+@views_blueprint.route('/api/start_capture', methods=['POST'])
+def start_capture():
     if 'file' not in request.files:
-        return jsonify({'status': 'error', 'message': 'No file part'}), 400
+        return jsonify({"status": "error", "message": "No file provided"}), 400
     file = request.files['file']
     face_id = request.form.get('face_id', 'default_id')
-    async_capture_faces(file, face_id)
-    return jsonify({"status": "success", "message": "Captura iniciada"}), 202
+    file_stream = file.read()  # Get the file stream
+    try:
+        async_capture_faces(file_stream, face_id, 300)
+        return jsonify({"status": "success", "message": "Capture started"}), 202
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @views_blueprint.route('/api/train_model', methods=['POST'])

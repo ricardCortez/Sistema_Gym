@@ -5,67 +5,30 @@ import os
 import numpy as np
 
 
-def capture_faces(face_id, num_samples=300):
-    try:
-        # Inicializa la cámara
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            raise Exception("Error: La cámara no pudo ser activada.")
+def process_image_data(image_data):
+    nparr = np.frombuffer(image_data, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return img
 
-        # Crea el clasificador de rostros
-        face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-        # Crea el directorio para guardar las imágenes capturadas
-        path = f"faces/{face_id}"
-        os.makedirs(path, exist_ok=True)
+def capture_faces(image_data, face_id, num_samples=300):
+    img = process_image_data(image_data)
+    face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-        # Contador de rostros capturados
-        count = 0
-        cv2.namedWindow("Captura de Rostros", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Captura de Rostros", 640, 480)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.equalizeHist(gray)
 
-        # Proceso de captura de rostros
-        while count < num_samples:
-            ret, frame = cap.read()
-            if not ret:
-                break
+    faces = face_classifier.detectMultiScale(gray, 1.3, 5)
 
-            # Aplica filtro Gaussiano para reducción de ruido
-            frame_blurred = cv2.GaussianBlur(frame, (5, 5), 0)
-
-            # Convierte a escala de grises para la detección de rostros y ecualización
-            gray = cv2.cvtColor(frame_blurred, cv2.COLOR_BGR2GRAY)
-            gray = cv2.equalizeHist(gray)
-
-            # Detecta los rostros en la imagen
-            faces = face_classifier.detectMultiScale(gray, 1.3, 5)
-
-            for (x, y, w, h) in faces:
-                face_image = gray[y:y + h, x:x + w]
-                face_image = cv2.resize(face_image, (150, 150))
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cv2.imwrite(f"{path}/{count}.jpg", face_image)
-                count += 1
-
-            # Muestra el estado de la captura en la ventana
-            cv2.putText(frame, f"Presione 'q' para salir. Imagenes Capturadas: {count}/{num_samples}", (10, 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            cv2.imshow("Captura de Rostros", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q') or count >= num_samples:
-                break
-
-        # Cierra los recursos utilizados
-        cap.release()
-        cv2.destroyAllWindows()
-        print(f"{count} imágenes capturadas y almacenadas en {path}")
-        print("Rostro(s) capturado(s) con éxito.")
-
-    except Exception as e:
-        # Maneja cualquier excepción que ocurra durante la captura
-        print(f"Se ha producido un error durante la captura de rostros: {str(e)}")
-        if cap.isOpened():
-            cap.release()
-        cv2.destroyAllWindows()
+    path = f"faces/{face_id}"
+    os.makedirs(path, exist_ok=True)
+    count = 0
+    for (x, y, w, h) in faces:
+        face_image = gray[y:y + h, x:x + w]
+        face_image = cv2.resize(face_image, (150, 150))
+        cv2.imwrite(f"{path}/{count}.jpg", face_image)
+        count += 1
+    print(f"{count} imágenes capturadas y almacenadas en {path}")
 
 
 def train_model():
@@ -132,9 +95,8 @@ def recognize_faces():
     cv2.destroyAllWindows()
 
 
-def async_capture_faces(face_id, num_samples=300):
-    """Función para iniciar la captura de rostros en un hilo separado."""
-    thread = Thread(target=capture_faces, args=(face_id, num_samples))
+def async_capture_faces(image_data, face_id, num_samples=300):
+    thread = Thread(target=capture_faces, args=(image_data, face_id, num_samples))
     thread.start()
     return thread
 
