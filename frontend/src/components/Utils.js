@@ -5,7 +5,7 @@ export const menuOptions = {
     { name: 'Configuración', url: '/configuracion' },
     { name: 'Finanzas', url: '/finanzas' },
     { name: 'Promociones', url: '/promociones' },
-    { name: 'Productos', url: '/productos' },
+    { name: 'Productos', url: 'productos' },
     { name: 'Perfil', url: 'perfil' }
   ],
   dueño: [

@@ -110,16 +110,23 @@ def update_user():
         return jsonify({"error": str(e)}), 500
 
 
+####################rutas para capturar - entrenar - reconocer rostros##########
+
+current_count = 0  # Contador global para las imágenes capturadas
+
 @views_blueprint.route('/api/start_capture', methods=['POST'])
 def start_capture():
+    global current_count
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No file provided"}), 400
     file = request.files['file']
     face_id = request.form.get('face_id', 'default_id')
     file_stream = file.read()  # Get the file stream
     try:
-        async_capture_faces(file_stream, face_id, 300)
-        return jsonify({"status": "success", "message": "Capture started"}), 202
+        thread = async_capture_faces(file_stream, face_id, current_count, 300)
+        thread.join()  # Esperar a que termine el hilo
+        current_count += 1  # Incrementar el contador de imágenes capturadas
+        return jsonify({"status": "success", "message": f"Capture started. Images captured: {current_count}"}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -140,3 +147,5 @@ def recognize_faces_route():
         return jsonify({"status": "success", "message": "Reconocimiento iniciado"}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+########################################################################

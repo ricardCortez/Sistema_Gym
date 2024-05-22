@@ -11,24 +11,32 @@ def process_image_data(image_data):
     return img
 
 
-def capture_faces(image_data, face_id, num_samples=300):
+def capture_faces(image_data, face_id, current_count, total_samples=300):
     img = process_image_data(image_data)
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.equalizeHist(gray)
 
-    faces = face_classifier.detectMultiScale(gray, 1.3, 5)
+    # Ajustar estos parámetros para optimizar la detección
+    scaleFactor = 1.1  # Disminuye este valor para aumentar la sensibilidad a rostros más pequeños
+    minNeighbors = 5  # Aumenta este valor para reducir falsos positivos
+    minSize = (30, 30)  # Tamaño mínimo del rostro a detectar
+    maxSize = (200, 200)  # Tamaño máximo del rostro a detectar
+
+    faces = face_classifier.detectMultiScale(gray, scaleFactor, minNeighbors, minSize=minSize, maxSize=maxSize)
 
     path = f"faces/{face_id}"
     os.makedirs(path, exist_ok=True)
-    count = 0
+
+    count = current_count
     for (x, y, w, h) in faces:
         face_image = gray[y:y + h, x:x + w]
         face_image = cv2.resize(face_image, (150, 150))
         cv2.imwrite(f"{path}/{count}.jpg", face_image)
         count += 1
     print(f"{count} imágenes capturadas y almacenadas en {path}")
+    return count
 
 
 def train_model():
@@ -95,28 +103,25 @@ def recognize_faces():
     cv2.destroyAllWindows()
 
 
-def async_capture_faces(image_data, face_id, num_samples=300):
-    thread = Thread(target=capture_faces, args=(image_data, face_id, num_samples))
+def async_capture_faces(image_data, face_id, start_count, num_samples=300):
+    thread = Thread(target=capture_faces, args=(image_data, face_id, start_count, num_samples))
     thread.start()
     return thread
 
 
 def async_train_model():
-    """Función para iniciar el entrenamiento del modelo en un hilo separado."""
     thread = Thread(target=train_model)
     thread.start()
     return thread
 
 
 def async_recognize_faces():
-    """Función para iniciar el reconocimiento de rostros en un hilo separado."""
     thread = Thread(target=recognize_faces)
     thread.start()
     return thread
 
 
-# Esto evitará que se ejecute código al importar
 if __name__ == '__main__':
-    capture_faces('example_id')
+    capture_faces('example_id', 0, 300)
     train_model()
     recognize_faces()

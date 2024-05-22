@@ -7,6 +7,7 @@ import './style/Dashboard.css';
 import UserProfile from './UserProfile';
 import logoImage from './image/image_logo.jpeg';
 import userAvatar from './image/user-avatar.png';
+import SystemFace from "./SystemFace";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const Dashboard = () => {
         <main className="content">
           <Routes>
             <Route path="perfil" element={<UserProfile />} />
+            <Route path="productos" element={<SystemFace />} />
           </Routes>
         </main>
       </div>
