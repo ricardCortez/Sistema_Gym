@@ -4,10 +4,11 @@ import cv2
 from datetime import datetime, date
 from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
 from database import db, Usuario, Socio, Entrenador, RegistroRostros, Asistencia
+from face_detection import async_capture_faces, async_train_model, async_recognize_faces
 
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
-
+# face_detection = f
 
 @views_blueprint.route('/static/<path:path>')
 def send_static(path):
@@ -49,8 +50,7 @@ def login():
 
 @views_blueprint.route('/prueba')
 def prueba():
-
-    return render_template('prueba.html')
+    return render_template('/prueba.html')
 
 
 @views_blueprint.route('/logout', methods=['POST'])
@@ -108,3 +108,31 @@ def update_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+@views_blueprint.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'status': 'error', 'message': 'No file part'}), 400
+    file = request.files['file']
+    face_id = request.form.get('face_id', 'default_id')
+    async_capture_faces(file, face_id)
+    return jsonify({"status": "success", "message": "Captura iniciada"}), 202
+
+
+@views_blueprint.route('/api/train_model', methods=['POST'])
+def train_model_route():
+    try:
+        async_train_model()
+        return jsonify({"status": "success", "message": "Entrenamiento iniciado"}), 202
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@views_blueprint.route('/api/recognize_faces', methods=['POST'])
+def recognize_faces_route():
+    try:
+        async_recognize_faces()
+        return jsonify({"status": "success", "message": "Reconocimiento iniciado"}), 202
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

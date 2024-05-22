@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
 import { getMenu } from './Utils';
 import { useTheme } from './ThemeContext';
 import './style/Dashboard.css';
 
-import UserProfile from './UserProfile'; // ruta en el campo dinamico
-
-// Importa las imágenes
+import UserProfile from './UserProfile';
 import logoImage from './image/image_logo.jpeg';
 import userAvatar from './image/user-avatar.png';
 
@@ -16,65 +14,65 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/get_user', {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data.user);
-        } else {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  const fetchUserData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/get_user', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setUser(data.user);
+      } else {
         navigate('/login');
       }
-    };
-
-    fetchUserData();
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      navigate('/login');
+    }
   }, [navigate]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  const handleLinkClick = useCallback((link) => {
+    console.log(`Navigating to ${link.name}`);
+    navigate(link.url);
+  }, [navigate]);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      const response = await fetch('/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setUser(null);
+        navigate('/login');
+      } else {
+        const errorData = await response.json();
+        console.error("Logout failed:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  }, [navigate]);
+
+  const toggleDropdown = useCallback(() => {
+    setShowDropdown(prevShowDropdown => !prevShowDropdown);
+  }, []);
+
+  const handleSettingsClick = useCallback((event) => {
+    event.stopPropagation();
+    toggleTheme();
+  }, [toggleTheme]);
 
   if (!user) {
     return <div>Loading...</div>;
   }
 
   const links = getMenu(user.tipo_usuario);
-
-  const handleLinkClick = (link) => {
-    console.log(`Navigating to ${link.name}`);  // Imprime el nombre del link en la consola
-    navigate(link.url);
-  };
-
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/logout', {
-          method: 'POST',
-          credentials: 'include'
-      });
-      if (response.ok) {
-          setUser(null);
-          navigate('/login');
-      } else {
-          const errorData = await response.json();
-          console.error("Logout failed:", errorData.message);
-      }
-    } catch (error) {
-        console.error("Error al cerrar sesión:", error);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
-  const handleSettingsClick = (event) => {
-    event.stopPropagation();
-    toggleTheme();
-  };
 
   return (
     <div className={`dashboard ${theme}`}>
