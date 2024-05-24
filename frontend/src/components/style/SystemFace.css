@@ -132,7 +132,7 @@ button:hover {
 }
 
 progress {
-    width: 100%; /* Utiliza todo el ancho disponible */
+    width: 100%;
     height: 20px; /* Altura fija de la barra de progreso */
     border-radius: 10px; /* Bordes redondeados */
 }
