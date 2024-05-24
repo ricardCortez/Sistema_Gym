@@ -1,5 +1,5 @@
 import os
-import imutils
+# import imutils
 import cv2
 from datetime import datetime, date
 from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
@@ -8,7 +8,6 @@ from face_detection import async_capture_faces, async_train_model, async_recogni
 
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
-# face_detection = f
 
 @views_blueprint.route('/static/<path:path>')
 def send_static(path):
@@ -112,23 +111,23 @@ def update_user():
 
 ####################rutas para capturar - entrenar - reconocer rostros##########
 
-current_count = 0  # Contador global para las imágenes capturadas
 
 @views_blueprint.route('/api/start_capture', methods=['POST'])
 def start_capture():
-    global current_count
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No file provided"}), 400
     file = request.files['file']
     face_id = request.form.get('face_id', 'default_id')
-    file_stream = file.read()  # Get the file stream
+    current_count = int(request.form.get('current_count', 0))  # Recibe el contador actual desde el frontend
+    file_stream = file.read()
+
     try:
         thread = async_capture_faces(file_stream, face_id, current_count, 300)
         thread.join()  # Esperar a que termine el hilo
-        current_count += 1  # Incrementar el contador de imágenes capturadas
-        return jsonify({"status": "success", "message": f"Capture started. Images captured: {current_count}"}), 202
+        return jsonify({"status": "success", "message": f"Capture started. Images captured: {current_count + 1}"}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 
 @views_blueprint.route('/api/train_model', methods=['POST'])
@@ -147,5 +146,3 @@ def recognize_faces_route():
         return jsonify({"status": "success", "message": "Reconocimiento iniciado"}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-########################################################################

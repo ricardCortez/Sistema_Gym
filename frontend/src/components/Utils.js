@@ -4,8 +4,9 @@ export const menuOptions = {
     { name: 'Reportes', url: '/reportes' },
     { name: 'Configuración', url: '/configuracion' },
     { name: 'Finanzas', url: '/finanzas' },
-    { name: 'Promociones', url: '/promociones' },
-    { name: 'Productos', url: 'productos' },
+    { name: 'Promociones', url: 'promociones' },
+    { name: 'Registro rostro', url: 'registro-rostro' },
+    { name: 'Tomar asistencia', url: 'tomar-asistencia' },
     { name: 'Perfil', url: 'perfil' }
   ],
   dueño: [

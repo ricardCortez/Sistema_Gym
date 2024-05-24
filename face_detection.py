@@ -1,4 +1,6 @@
 from threading import Thread
+
+from flask_socketio import emit, SocketIO
 from tqdm import tqdm
 import cv2
 import os
@@ -26,7 +28,7 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
 
     faces = face_classifier.detectMultiScale(gray, scaleFactor, minNeighbors, minSize=minSize, maxSize=maxSize)
 
-    path = f"faces/{face_id}"
+    path = f"/Sistema_gym/faces/{face_id}"
     os.makedirs(path, exist_ok=True)
 
     count = current_count
@@ -40,7 +42,12 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
 
 
 def train_model():
-    dataPath = 'faces/'
+    dataPath = '/Sistema_gym/faces/'  # Asegúrate de que este directorio existe en tu proyecto
+    modelDirectory = '/Sistema_gym/modelLBPHFace/'  # Carpeta para guardar el modelo entrenado
+    modelPath = os.path.join(os.getcwd(), modelDirectory)  # Ruta completa
+
+    os.makedirs(modelPath, exist_ok=True)  # Crea el directorio si no existe
+
     peopleList = os.listdir(dataPath)
     labels = []
     facesData = []
@@ -56,19 +63,22 @@ def train_model():
             image = cv2.imread(os.path.join(personPath, imageName), cv2.IMREAD_GRAYSCALE)
             facesData.append(image)
             labels.append(label)
-            progress_bar.update(1)  # Actualizar la barra de progreso por cada imagen procesada
+            progress_bar.update(1)
         label += 1
 
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
     face_recognizer.train(facesData, np.array(labels))
-    face_recognizer.write('modelo_LBPHFace.xml')
-    progress_bar.close()  # Cerrar la barra de progreso al completar
-    print("Modelo entrenado y almacenado con éxito.")
+    face_recognizer.write(os.path.join(modelPath, 'modelo_LBPHFace.xml'))  # Guarda el modelo en la ruta especificada
+    progress_bar.close()
+    print("Modelo entrenado y almacenado con éxito en:", modelPath)
 
 
 def recognize_faces():
+    # Definir la ruta completa al modelo
+    model_path = '/Sistema_gym/modelLBPHFace/modelo_LBPHFace.xml'  # Asegúrate de que esta ruta sea accesible y correcta
+
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    face_recognizer.read('modelo_LBPHFace.xml')
+    face_recognizer.read(model_path)
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     cap = cv2.VideoCapture(0)
@@ -88,7 +98,7 @@ def recognize_faces():
             label, confidence = face_recognizer.predict(face)
             confidence = 100 - confidence
 
-            if confidence < 50:  # Asumimos que menos del 50% de confianza es no reconocido
+            if confidence < 50:
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
                 cv2.putText(frame, "No reconocido", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             else:
@@ -101,7 +111,6 @@ def recognize_faces():
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 def async_capture_faces(image_data, face_id, start_count, num_samples=300):
     thread = Thread(target=capture_faces, args=(image_data, face_id, start_count, num_samples))

@@ -1,0 +1,150 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%; /* Ocupar la totalidad del ancho disponible */
+    max-width: 640px; /* Establece un máximo si es necesario */
+    margin: 20px auto; /* Centrar en la página, con un poco más de espacio */
+}
+
+.container, .training-model, .recognize {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 100%; /* Usar el 100% del contenedor principal */
+    max-width: 680px; /* Un poco más grande que el contenedor de video */
+    margin-bottom: 30px; /* Más espacio entre contenedores */
+}
+
+.video-container {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    /*box-shadow: 0 2px 4x rgba(0,0,0,0.1);*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+video {
+    width: 320px; /* Ancho fijo del video */
+    height: 240px; /* Altura fija del video */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-bar-container {
+    width: 100%; /* Ajustar según necesidades */
+    max-width: 300px; /* Limitar el tamaño de la barra de progreso */
+    margin: 10px 0;
+    padding: 5px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+progress {
+    width: 100%; /* Aprovechar el tamaño máximo del contenedor */
+    height: 20px;
+    border-radius: 10px;
+}
+
+progress[value]::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 10px;
+}
+
+progress[value]::-webkit-progress-value {
+    background-color: #5cb85c;
+    border-radius: 10px;
+}
+
+.controls, .training-controls, .recognition-controls {
+    display: flex;
+    justify-content: space-around; /* Espacia los botones uniformemente */
+    width: 100%; /* Asegura que los controles llenen el contenedor */
+    margin-top: 10px;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: row; /* Alinea los contenedores en fila */
+    justify-content: center; /* Centra los contenedores horizontalmente */
+    align-items: start; /* Alinea los contenedores al inicio verticalmente */
+    gap: 20px; /* Espacio entre los contenedores */
+    padding: 20px;
+    /*max-width: 1200px; !* Ajusta según la anchura máxima deseada *!*/
+    margin: 20px auto; /* Centrar en la página */
+}
+
+.camera-container, .training-model {
+    flex: 1; /* Cada contenedor toma la mitad del espacio disponible */
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los elementos internos horizontalmente */
+}
+
+.video-container, .progress-bar-container {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+video {
+    width: 100%; /* Se ajusta al contenedor */
+    max-width: 400px; /* Máximo ancho del video */
+    height: auto; /* Altura se ajusta automáticamente */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.controls, .training-controls, .recognition-controls {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+    flex-grow: 1; /* Permite que los botones crezcan para llenar el espacio */
+    margin: 0 5px; /* Añade un pequeño margen entre botones */
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+progress {
+    width: 100%; /* Utiliza todo el ancho disponible */
+    height: 20px; /* Altura fija de la barra de progreso */
+    border-radius: 10px; /* Bordes redondeados */
+}
+
+/* Estilos para los estados de progreso */
+progress[value]::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 10px;
+}
+
+progress[value]::-webkit-progress-value {
+    background-color: #5cb85c;
+    border-radius: 10px;
+}
+

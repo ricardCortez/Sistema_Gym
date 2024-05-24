@@ -8,6 +8,7 @@ import UserProfile from './UserProfile';
 import logoImage from './image/image_logo.jpeg';
 import userAvatar from './image/user-avatar.png';
 import SystemFace from "./SystemFace";
+import SystemDetection from "./SystemDetection";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -107,7 +108,8 @@ const Dashboard = () => {
         <main className="content">
           <Routes>
             <Route path="perfil" element={<UserProfile />} />
-            <Route path="productos" element={<SystemFace />} />
+            <Route path="registro-rostro" element={<SystemFace />} />
+            <Route path="tomar-asistencia" element={<SystemDetection />} />
           </Routes>
         </main>
       </div>
