@@ -45,35 +45,61 @@ function CameraCapture() {
     }, []);
 
     useEffect(() => {
-        if (capturing && imagesCaptured < 300) {
-            const interval = setInterval(() => {
-                if (imagesCaptured >= 300) {
-                    clearInterval(interval);
-                    setCapturing(false);
-                    setShowModal(true); // Mostrar el modal cuando la captura se complete
-                    console.log('Capture complete');
-                } else {
-                    captureAndSendImage();
-                }
-            }, 100);
-            return () => clearInterval(interval);
-        }
-    }, [capturing, imagesCaptured]);
+    if (capturing && imagesCaptured < 300) {
+        const interval = setInterval(() => {
+            if (imagesCaptured >= 300) {
+                clearInterval(interval);
+                setCapturing(false);
+                setShowModal(true); // Mostrar el modal cuando la captura se complete
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Captura Completa',
+                    text: 'La captura de imágenes se ha completado con éxito.',
+                });
+                stopCamera();  // Desactivar la cámara
+                console.log('Capture complete');
+            } else {
+                captureAndSendImage();
+            }
+        }, 100);
+        return () => clearInterval(interval);
+    }
+}, [capturing, imagesCaptured]);
 
-    const startCapture = () => {
-        const video = videoRef.current;
-        if (video && video.readyState === 4) {
-            console.log('Starting capture...');
-            setImagesCaptured(0);  // Reiniciar el contador de imágenes capturadas
-            setCapturing(true);
-        } else {
-            console.log('Video is not ready or not playing.');
+    const startCapture = async () => {
+    const video = videoRef.current;
+    if (video && video.readyState === 4) {
+        console.log('Starting capture...');
+        setImagesCaptured(0);  // Reiniciar el contador de imágenes capturadas
+        setCapturing(true);
+    } else {
+        console.log('Video is not ready or not playing. Setting up camera...');
+        try {
+            const constraints = { video: true };
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                videoRef.current.onloadedmetadata = () => {
+                    videoRef.current.play();
+                    setImagesCaptured(0);  // Reiniciar el contador de imágenes capturadas
+                    setCapturing(true);
+                };
+            }
+        } catch (error) {
+            console.error('Error accessing the camera:', error);
         }
-    };
+    }
+};
+
 
     const stopCapture = () => {
         setCapturing(false);
         console.log('Capturing stopped manually.');
+        if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+        }
     };
 
     const closeModal = () => {
@@ -81,36 +107,40 @@ function CameraCapture() {
     };
 
     const captureAndSendImage = () => {
-        const video = videoRef.current;
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth / 2;
-        canvas.height = video.videoHeight / 2;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth / 2;
+    canvas.height = video.videoHeight / 2;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        canvas.toBlob(blob => {
-            if (blob) {
-                const formData = new FormData();
-                formData.append('file', blob, 'capture.jpg');
-                formData.append('face_id', 'default_id');
-                formData.append('current_count', imagesCaptured);  // Añade el contador actual a la solicitud
-                fetch('/api/start_capture', {
-                    method: 'POST',
-                    body: formData,
+    canvas.toBlob(blob => {
+        if (blob) {
+            const formData = new FormData();
+            formData.append('file', blob, 'capture.jpg');
+            formData.append('face_id', 'default_id');
+            formData.append('current_count', imagesCaptured);  // Añade el contador actual a la solicitud
+            fetch('/api/start_capture', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'success' && data.captured) {  // Verificar si la imagen fue capturada
+                        setImagesCaptured(data.new_count);  // Actualizar con el nuevo contador desde el backend
+                    }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        setImagesCaptured(prev => prev + 1);
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            } else {
-                console.error('Blob was not created successfully');
-            }
-        }, 'image/jpeg');
-    };
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else {
+            console.error('Blob was not created successfully');
+        }
+    }, 'image/jpeg');
+};
+
+
 
     const trainModel = () => {
     console.log('Iniciando el entrenamiento del modelo...');

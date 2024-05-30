@@ -123,9 +123,9 @@ def start_capture():
     file_stream = file.read()
 
     try:
-        thread = async_capture_faces(file_stream, face_id, current_count, 300)
-        thread.join()  # Esperar a que termine el hilo
-        return jsonify({"status": "success", "message": f"Capture started. Images captured: {current_count + 1}"}), 202
+        count = capture_faces(file_stream, face_id, current_count, 300)  # Llamar directamente a capture_faces para simplicidad
+        captured = count > current_count  # Verificar si se capturó alguna imagen
+        return jsonify({"status": "success", "message": f"Capture started. Images captured: {count - current_count}", "captured": captured, "new_count": count}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -156,6 +156,7 @@ def recognize_faces_route():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 @views_blueprint.route('/api/face_validated', methods=['POST'])
 def face_validated_route():
     global validation_status
@@ -165,6 +166,7 @@ def face_validated_route():
         return jsonify({"status": "success", "message": "Usuario validado"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @views_blueprint.route('/api/check_validation_status', methods=['GET'])
 def check_validation_status():

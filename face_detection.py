@@ -42,11 +42,11 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
         face_image = gray[y_new:y_new + h_new, x_new:x_new + w_new]
         face_image = cv2.resize(face_image, (200, 200))
         cv2.imwrite(f"{path}/{count}.jpg", face_image)
+        print(f"Imagen {count} guardada.")
         count += 1
 
-    print(f"{count} imágenes capturadas y almacenadas en {path}")
+    print(f"{count - current_count} imágenes capturadas en esta iteración, total capturadas: {count}")
     return count
-
 
 
 def train_model():
@@ -90,6 +90,7 @@ def send_validation_signal():
             print(f"Error al enviar la señal de validación: {response.status_code}")
     except Exception as e:
         print(f"Error al enviar la señal de validación: {e}")
+
 
 def recognize_faces():
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -143,7 +144,6 @@ def recognize_faces():
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 
 def async_capture_faces(image_data, face_id, start_count, num_samples=300):
