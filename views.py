@@ -1,10 +1,11 @@
 import os
-# import imutils
+import imutils
 import cv2
+import threading
 from datetime import datetime, date
 from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
 from database import db, Usuario, Socio, Entrenador, RegistroRostros, Asistencia
-from face_detection import async_capture_faces, async_train_model, async_recognize_faces
+from face_detection import async_recognize_faces, capture_faces, async_train_model, async_capture_faces
 
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
@@ -139,10 +140,34 @@ def train_model_route():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+validation_status = {
+    "status": "pending"
+}
+status_lock = threading.Lock()
+
 @views_blueprint.route('/api/recognize_faces', methods=['POST'])
 def recognize_faces_route():
+    global validation_status
     try:
+        with status_lock:
+            validation_status["status"] = "pending"
         async_recognize_faces()
         return jsonify({"status": "success", "message": "Reconocimiento iniciado"}), 202
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@views_blueprint.route('/api/face_validated', methods=['POST'])
+def face_validated_route():
+    global validation_status
+    try:
+        with status_lock:
+            validation_status["status"] = "validated"
+        return jsonify({"status": "success", "message": "Usuario validado"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@views_blueprint.route('/api/check_validation_status', methods=['GET'])
+def check_validation_status():
+    global validation_status
+    with status_lock:
+        return jsonify({"status": validation_status["status"]})

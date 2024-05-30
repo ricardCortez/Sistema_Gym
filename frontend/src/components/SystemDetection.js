@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './style/SystemDetection.css'; // Asegúrate de crear este archivo CSS
 
 function FaceRecognitionStarter() {
     const [status, setStatus] = useState('');
@@ -15,7 +14,8 @@ function FaceRecognitionStarter() {
             });
             const data = await response.json();
             if (data.status === 'success') {
-                setStatus('Reconocimiento iniciado con éxito. Esperando resultados...');
+                setStatus('Reconocimiento en progreso...');
+                checkValidation();
             } else {
                 setStatus('Error al iniciar el reconocimiento.');
             }
@@ -23,6 +23,23 @@ function FaceRecognitionStarter() {
             console.error('Error al iniciar el reconocimiento:', error);
             setStatus('Error de conexión con el servidor.');
         }
+    };
+
+    const checkValidation = async () => {
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch('/api/check_validation_status');
+                const data = await response.json();
+                if (data.status === 'validated') {
+                    setStatus('Usuario validado.');
+                    clearInterval(interval);
+                }
+            } catch (error) {
+                console.error('Error al verificar el estado de validación:', error);
+                setStatus('Error al validar el usuario.');
+                clearInterval(interval);
+            }
+        }, 2000); // Polling cada 2 segundos
     };
 
     return (

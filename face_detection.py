@@ -1,9 +1,9 @@
 from threading import Thread
-
-from flask_socketio import emit, SocketIO
 from tqdm import tqdm
 import cv2
 import os
+import time
+import requests
 import numpy as np
 
 
@@ -23,7 +23,7 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
     # Ajustar estos parámetros para optimizar la detección
     scaleFactor = 1.1  # Disminuye este valor para aumentar la sensibilidad a rostros más pequeños
     minNeighbors = 5  # Aumenta este valor para reducir falsos positivos
-    minSize = (30, 30)  # Tamaño mínimo del rostro a detectar
+    minSize = (50, 50)  # Tamaño mínimo del rostro a detectar
     maxSize = (200, 200)  # Tamaño máximo del rostro a detectar
 
     faces = face_classifier.detectMultiScale(gray, scaleFactor, minNeighbors, minSize=minSize, maxSize=maxSize)
@@ -33,12 +33,20 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
 
     count = current_count
     for (x, y, w, h) in faces:
-        face_image = gray[y:y + h, x:x + w]
-        face_image = cv2.resize(face_image, (150, 150))
+        center_x, center_y = x + w // 2, y + h // 2
+        margin = max(w, h) // 2
+        x_new = max(center_x - margin, 0)
+        y_new = max(center_y - margin, 0)
+        w_new = min(2 * margin, gray.shape[1] - x_new)
+        h_new = min(2 * margin, gray.shape[0] - y_new)
+        face_image = gray[y_new:y_new + h_new, x_new:x_new + w_new]
+        face_image = cv2.resize(face_image, (200, 200))
         cv2.imwrite(f"{path}/{count}.jpg", face_image)
         count += 1
+
     print(f"{count} imágenes capturadas y almacenadas en {path}")
     return count
+
 
 
 def train_model():
@@ -73,17 +81,29 @@ def train_model():
     print("Modelo entrenado y almacenado con éxito en:", modelPath)
 
 
-def recognize_faces():
-    # Definir la ruta completa al modelo
-    model_path = '/Sistema_gym/modelLBPHFace/modelo_LBPHFace.xml'  # Asegúrate de que esta ruta sea accesible y correcta
+def send_validation_signal():
+    try:
+        response = requests.post('http://localhost:5000/api/face_validated')
+        if response.status_code == 200:
+            print("Señal de validación enviada correctamente.")
+        else:
+            print(f"Error al enviar la señal de validación: {response.status_code}")
+    except Exception as e:
+        print(f"Error al enviar la señal de validación: {e}")
 
+def recognize_faces():
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    face_recognizer.read(model_path)
+    face_recognizer.read('/Sistema_gym/modelLBPHFace/modelo_LBPHFace.xml')
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     cap = cv2.VideoCapture(0)
     cv2.namedWindow("Reconocimiento de Rostros", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("Reconocimiento de Rostros", 640, 480)
+
+    recognition_threshold = 50  # Umbral de confianza para considerar el reconocimiento positivo
+    continuous_recognition_duration = 3  # Duración en segundos para validar reconocimiento
+
+    start_time = None  # Iniciar el tiempo de seguimiento cuando se reconoce un rostro
 
     while True:
         ret, frame = cap.read()
@@ -92,18 +112,30 @@ def recognize_faces():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = face_classifier.detectMultiScale(gray, 1.3, 5)
 
+        recognized = False  # Flag para controlar si se ha reconocido algún rostro
+
         for (x, y, w, h) in faces:
             face = gray[y:y+h, x:x+w]
             face = cv2.resize(face, (150, 150))
             label, confidence = face_recognizer.predict(face)
             confidence = 100 - confidence
 
-            if confidence < 50:
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-                cv2.putText(frame, "No reconocido", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            else:
+            if confidence > recognition_threshold:
+                if start_time is None:
+                    start_time = time.time()  # Marcar el inicio del reconocimiento continuo
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.putText(frame, f"Confianza: {confidence:.2f}%", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                recognized = True
+            else:
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                cv2.putText(frame, "No reconocido", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        if recognized and start_time and (time.time() - start_time) >= continuous_recognition_duration:
+            print("Usuario validado exitosamente.")
+            send_validation_signal()  # Enviar señal de validación
+            break  # Salir del bucle y cerrar la ventana
+        elif not recognized:
+            start_time = None  # Reiniciar el contador si no hay rostros reconocidos o no cumplen el umbral
 
         cv2.imshow("Reconocimiento de Rostros", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -111,6 +143,8 @@ def recognize_faces():
 
     cap.release()
     cv2.destroyAllWindows()
+
+
 
 def async_capture_faces(image_data, face_id, start_count, num_samples=300):
     thread = Thread(target=capture_faces, args=(image_data, face_id, start_count, num_samples))
