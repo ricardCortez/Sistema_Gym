@@ -13,7 +13,7 @@ def process_image_data(image_data):
     return img
 
 
-def capture_faces(image_data, face_id, current_count, total_samples=300):
+def capture_faces(image_data, face_id, current_count):
     img = process_image_data(image_data)
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
@@ -21,12 +21,12 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
     gray = cv2.equalizeHist(gray)
 
     # Ajustar estos parámetros para optimizar la detección
-    scaleFactor = 1.1  # Disminuye este valor para aumentar la sensibilidad a rostros más pequeños
-    minNeighbors = 5  # Aumenta este valor para reducir falsos positivos
-    minSize = (50, 50)  # Tamaño mínimo del rostro a detectar
-    maxSize = (200, 200)  # Tamaño máximo del rostro a detectar
+    scale_factor = 1.1  # Disminuye este valor para aumentar la sensibilidad a rostros más pequeños
+    min_neighbors = 5  # Aumenta este valor para reducir falsos positivos
+    min_size = (50, 50)  # Tamaño mínimo del rostro a detectar
+    max_size = (200, 200)  # Tamaño máximo del rostro a detectar
 
-    faces = face_classifier.detectMultiScale(gray, scaleFactor, minNeighbors, minSize=minSize, maxSize=maxSize)
+    faces = face_classifier.detectMultiScale(gray, scale_factor, min_neighbors, minSize=min_size, maxSize=max_size)
 
     path = f"/Sistema_gym/faces/{face_id}"
     os.makedirs(path, exist_ok=True)
@@ -50,35 +50,35 @@ def capture_faces(image_data, face_id, current_count, total_samples=300):
 
 
 def train_model():
-    dataPath = '/Sistema_gym/faces/'  # Asegúrate de que este directorio existe en tu proyecto
-    modelDirectory = '/Sistema_gym/modelLBPHFace/'  # Carpeta para guardar el modelo entrenado
-    modelPath = os.path.join(os.getcwd(), modelDirectory)  # Ruta completa
+    data_path = '/Sistema_gym/faces/'  # Asegúrate de que este directorio existe en tu proyecto
+    model_directory = '/Sistema_gym/modelLBPHFace/'  # Carpeta para guardar el modelo entrenado
+    model_path = os.path.join(os.getcwd(), model_directory)  # Ruta completa
 
-    os.makedirs(modelPath, exist_ok=True)  # Crea el directorio si no existe
+    os.makedirs(model_path, exist_ok=True)  # Crea el directorio si no existe
 
-    peopleList = os.listdir(dataPath)
+    people_list = os.listdir(data_path)
     labels = []
-    facesData = []
+    faces_data = []
     label = 0
 
     print("Comenzando el entrenamiento del modelo...")
-    total_images = sum(len(os.listdir(os.path.join(dataPath, person))) for person in peopleList)
+    total_images = sum(len(os.listdir(os.path.join(data_path, person))) for person in people_list)
     progress_bar = tqdm(total=total_images, desc="Entrenando", unit="img")
 
-    for personName in peopleList:
-        personPath = os.path.join(dataPath, personName)
-        for imageName in os.listdir(personPath):
-            image = cv2.imread(os.path.join(personPath, imageName), cv2.IMREAD_GRAYSCALE)
-            facesData.append(image)
+    for personName in people_list:
+        person_path = os.path.join(data_path, personName)
+        for imageName in os.listdir(person_path):
+            image = cv2.imread(os.path.join(person_path, imageName), cv2.IMREAD_GRAYSCALE)
+            faces_data.append(image)
             labels.append(label)
             progress_bar.update(1)
         label += 1
 
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    face_recognizer.train(facesData, np.array(labels))
-    face_recognizer.write(os.path.join(modelPath, 'modelo_LBPHFace.xml'))  # Guarda el modelo en la ruta especificada
+    face_recognizer.train(faces_data, np.array(labels))
+    face_recognizer.write(os.path.join(model_path, 'modelo_LBPHFace.xml'))  # Guarda el modelo en la ruta especificada
     progress_bar.close()
-    print("Modelo entrenado y almacenado con éxito en:", modelPath)
+    print("Modelo entrenado y almacenado con éxito en:", model_path)
 
 
 def send_validation_signal():
@@ -116,7 +116,7 @@ def recognize_faces():
         recognized = False  # Flag para controlar si se ha reconocido algún rostro
 
         for (x, y, w, h) in faces:
-            face = gray[y:y+h, x:x+w]
+            face = gray[y:y + h, x:x + w]
             face = cv2.resize(face, (150, 150))
             label, confidence = face_recognizer.predict(face)
             confidence = 100 - confidence
@@ -124,12 +124,13 @@ def recognize_faces():
             if confidence > recognition_threshold:
                 if start_time is None:
                     start_time = time.time()  # Marcar el inicio del reconocimiento continuo
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                cv2.putText(frame, f"Confianza: {confidence:.2f}%", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(frame, f"Confianza: {confidence:.2f}%", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                            (0, 255, 0), 2)
                 recognized = True
             else:
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
-                cv2.putText(frame, "No reconocido", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                cv2.putText(frame, "No reconocido", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         if recognized and start_time and (time.time() - start_time) >= continuous_recognition_duration:
             print("Usuario validado exitosamente.")
@@ -146,10 +147,10 @@ def recognize_faces():
     cv2.destroyAllWindows()
 
 
-def async_capture_faces(image_data, face_id, start_count, num_samples=300):
-    thread = Thread(target=capture_faces, args=(image_data, face_id, start_count, num_samples))
-    thread.start()
-    return thread
+# def async_capture_faces(image_data, face_id, start_count, num_samples=300):
+#     thread = Thread(target=capture_faces, args=(image_data, face_id, start_count, num_samples))
+#     thread.start()
+#     return thread
 
 
 def async_train_model():

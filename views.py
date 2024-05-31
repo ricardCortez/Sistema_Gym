@@ -1,14 +1,11 @@
-import os
-import imutils
-import cv2
-import threading
-from datetime import datetime, date
-from flask import Blueprint, send_from_directory, render_template, request, redirect, url_for, session, jsonify
-from database import db, Usuario, Socio, Entrenador, RegistroRostros, Asistencia
-from face_detection import async_recognize_faces, capture_faces, async_train_model, async_capture_faces
 
+import threading
+from flask import Blueprint, send_from_directory, request, session, jsonify
+from database import db, Usuario, Socio, Entrenador, RegistroRostros, Asistencia
+from face_detection import async_recognize_faces, capture_faces, async_train_model
 # Crear un Blueprint para las vistas
 views_blueprint = Blueprint('views', __name__)
+
 
 @views_blueprint.route('/static/<path:path>')
 def send_static(path):
@@ -48,9 +45,9 @@ def login():
         return jsonify({"status": "error", "message": "Usuario o contraseña incorrectos"}), 401
 
 
-@views_blueprint.route('/prueba')
-def prueba():
-    return render_template('/prueba.html')
+# @views_blueprint.route('/prueba')
+# def prueba():
+#     return render_template('/prueba.html')
 
 
 @views_blueprint.route('/logout', methods=['POST'])
@@ -110,7 +107,7 @@ def update_user():
         return jsonify({"error": str(e)}), 500
 
 
-####################rutas para capturar - entrenar - reconocer rostros##########
+# rutas para capturar - entrenar - reconocer rostros##########
 
 
 @views_blueprint.route('/api/start_capture', methods=['POST'])
@@ -130,7 +127,6 @@ def start_capture():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-
 @views_blueprint.route('/api/train_model', methods=['POST'])
 def train_model_route():
     try:
@@ -144,6 +140,7 @@ validation_status = {
     "status": "pending"
 }
 status_lock = threading.Lock()
+
 
 @views_blueprint.route('/api/recognize_faces', methods=['POST'])
 def recognize_faces_route():

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './style/SystemDetection.css'
 
 function FaceRecognitionStarter() {
     const [status, setStatus] = useState('');
@@ -45,7 +46,7 @@ function FaceRecognitionStarter() {
     return (
         <div className="recognition-container">
             <button onClick={startRecognition} className="start-button">Iniciar Reconocimiento de Rostros</button>
-            <p className="status-message">{status}</p>
+            <p className={`status-message ${status.includes('Error') ? 'error' : ''}`}>{status}</p>
         </div>
     );
 }
