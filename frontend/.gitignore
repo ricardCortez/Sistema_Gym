@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# imagenes de rostros
+/faces
+
 # production
 /build
 
