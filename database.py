@@ -9,7 +9,7 @@ class Usuario(db.Model):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(100))
     email = db.Column(db.String(100))
-    tipo_usuario = db.Column(db.String(20))  # Puede ser 'admin', 'dueño', 'counter', etc.
+    tipo_usuario = db.Column(db.String(20))
 
     def __init__(self, nombre, username, password, email, tipo_usuario):
         self.nombre = nombre
@@ -21,23 +21,22 @@ class Usuario(db.Model):
 class Socio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100))
-    apellidos = db.Column(db.String(100))  # Nueva columna para los apellidos
+    apellidos = db.Column(db.String(100))
     direccion = db.Column(db.String(200))
     telefono = db.Column(db.String(20))
     fecha_nacimiento = db.Column(db.Date)
-    fecha_registro = db.Column(db.Date, default=db.func.current_date())
+    fecha_registro = db.Column(db.Date, default=datetime.utcnow)
     estado_membresia = db.Column(db.String(20))
-    socio_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     codigo_unico = db.Column(db.String(36), unique=True)
 
-    def __init__(self, nombre, apellidos, direccion, telefono, fecha_nacimiento, estado_membresia, socio_id, codigo_unico):
+    def __init__(self, nombre, apellidos, direccion, telefono, fecha_nacimiento, fecha_registro, estado_membresia, codigo_unico):
         self.nombre = nombre
-        self.apellidos = apellidos  # Asegúrate de incluir los apellidos en el constructor
+        self.apellidos = apellidos
         self.direccion = direccion
         self.telefono = telefono
         self.fecha_nacimiento = fecha_nacimiento
+        self.fecha_registro = fecha_registro
         self.estado_membresia = estado_membresia
-        self.socio_id = socio_id
         self.codigo_unico = codigo_unico
 
 class Entrenador(db.Model):
@@ -62,16 +61,13 @@ class Entrenador(db.Model):
 class RegistroRostros(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     socio_id = db.Column(db.Integer, db.ForeignKey('socio.id'), nullable=True)
-    entrenador_id = db.Column(db.Integer, db.ForeignKey('entrenador.id'), nullable=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
     ruta = db.Column(db.String(200))
 
     socio = db.relationship('Socio', backref=db.backref('registros_rostros', lazy=True))
-    entrenador = db.relationship('Entrenador', backref=db.backref('registros_rostros', lazy=True))
 
-    def __init__(self, socio_id=None, entrenador_id=None, ruta=None):
+    def __init__(self, socio_id=None, ruta=None):
         self.socio_id = socio_id
-        self.entrenador_id = entrenador_id
         self.ruta = ruta
 
 class Membresia(db.Model):

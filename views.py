@@ -107,6 +107,48 @@ def update_user():
         return jsonify({"error": str(e)}), 500
 
 
+@views_blueprint.route('/api/generate_unique_code', methods=['GET'])
+def generate_unique_code():
+    last_socio = Socio.query.order_by(Socio.id.desc()).first()
+    if last_socio and last_socio.codigo_unico:
+        new_code = int(last_socio.codigo_unico) + 1
+    else:
+        new_code = 1000
+    return jsonify({"codigo_unico": str(new_code).zfill(4)})
+
+
+@views_blueprint.route('/api/save_socio_data', methods=['POST'])
+def save_socio_data():
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "No data provided"}), 400
+
+    # Asegúrate de que todos los campos necesarios están presentes
+    required_fields = ['nombre', 'apellidos', 'direccion', 'telefono', 'fecha_nacimiento', 'fecha_registro', 'estado_membresia', 'codigo_unico']
+    if not all(field in data for field in required_fields):
+        return jsonify({"status": "error", "message": "Missing one or more required fields"}), 400
+
+    # Crea una instancia del modelo Socio
+    nuevo_socio = Socio(
+        nombre=data['nombre'],
+        apellidos=data['apellidos'],
+        direccion=data['direccion'],
+        telefono=data['telefono'],
+        fecha_nacimiento=data['fecha_nacimiento'],
+        fecha_registro=data['fecha_registro'],
+        estado_membresia=data['estado_membresia'],
+        codigo_unico=data['codigo_unico']
+    )
+
+    try:
+        db.session.add(nuevo_socio)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Datos del socio guardados correctamente."}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 # rutas para capturar - entrenar - reconocer rostros##########
 
 
@@ -114,13 +156,14 @@ def update_user():
 def start_capture():
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "No file provided"}), 400
+
     file = request.files['file']
-    face_id = request.form.get('face_id', 'default_id')
+    codigo_unico = request.form.get('codigo_unico', 'default_id')  # Usar codigo_unico en lugar de face_id
     current_count = int(request.form.get('current_count', 0))  # Recibe el contador actual desde el frontend
     file_stream = file.read()
 
     try:
-        count = capture_faces(file_stream, face_id, current_count, 300)  # Llamar directamente a capture_faces para simplicidad
+        count = capture_faces(file_stream, codigo_unico, current_count)  # Llamar directamente a capture_faces para simplicidad
         captured = count > current_count  # Verificar si se capturó alguna imagen
         return jsonify({"status": "success", "message": f"Capture started. Images captured: {count - current_count}", "captured": captured, "new_count": count}), 202
     except Exception as e:

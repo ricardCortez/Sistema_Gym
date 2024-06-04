@@ -17,11 +17,65 @@ function Modal({ isOpen, onClose, children }) {
 
 function CameraCapture() {
     const [capturing, setCapturing] = useState(false);
+    const [canCapture, setCanCapture] = useState(false);  // Controla la habilidad de iniciar la captura
     const [imagesCaptured, setImagesCaptured] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [trainingProgress, setTrainingProgress] = useState(0);
     const [recognizing, setRecognizing] = useState(false);
+    const [socioData, setSocioData] = useState({
+        nombre: '',
+        apellidos: '',
+        codigo_unico: '',
+        direccion: '',
+        telefono: '',
+        fecha_nacimiento: '',
+        fecha_registro: '',
+        estado_membresia: ''
+    });
+
     const videoRef = useRef(null);
+
+    // Verifica si todos los campos requeridos están llenos para habilitar el botón de captura
+    useEffect(() => {
+        const requiredFields = ['nombre', 'apellidos', 'direccion', 'telefono', 'fecha_nacimiento', 'fecha_registro', 'estado_membresia'];
+        const allFieldsFilled = requiredFields.every(field => socioData[field].trim() !== '');
+        setCanCapture(allFieldsFilled);
+    }, [socioData]);
+
+    const handleInputChange = (event) => {
+        setSocioData(prevState => ({
+            ...prevState,
+            [event.target.name]: event.target.value
+        }));
+    };
+
+    const saveSocioData = () => {
+        fetch('/api/save_socio_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(socioData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('Guardado', 'Los datos del socio han sido guardados correctamente.', 'success');
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error al conectar con el servidor: ' + error, 'error');
+        });
+    };
+
+
+    // // Efecto para controlar la habilidad de capturar basado en la validez de los datos
+    // useEffect(() => {
+    //     setCanCapture(validateData());
+    // }, [socioData]);  // Dependiendo de socioData para reevaluar cuando los datos cambian
 
     useEffect(() => {
         async function setupCamera() {
@@ -42,6 +96,16 @@ function CameraCapture() {
             }
         };
     }, []);
+
+    useEffect(() => {
+        fetch('/api/generate_unique_code')
+            .then(response => response.json())
+            .then(data => {
+                setSocioData(currentData => ({ ...currentData, codigo_unico: data.codigo_unico }));
+            })
+            .catch(error => console.error('Error fetching unique code:', error));
+    }, []);
+
 
     useEffect(() => {
         if (capturing && imagesCaptured < 300) {
@@ -124,7 +188,7 @@ function CameraCapture() {
             if (blob) {
                 const formData = new FormData();
                 formData.append('file', blob, 'capture.jpg');
-                formData.append('face_id', 'default_id');
+                formData.append('codigo_unico', socioData.codigo_unico);  // Asegúrate que esto esté siendo enviado correctamente
                 formData.append('current_count', imagesCaptured);
                 fetch('/api/start_capture', {
                     method: 'POST',
@@ -194,9 +258,34 @@ function CameraCapture() {
                     </div>
                 </div>
                 <div className="controls">
-                    <button onClick={startCapture} className="systemFace-button">Iniciar Captura</button>
+                    <button onClick={startCapture} className="systemFace-button" disabled={!canCapture}>Iniciar Captura</button>
                     <button onClick={stopCapture} className="systemFace-button">Detener Captura</button>
                 </div>
+                <form>
+                    <input type="text" name="nombre" placeholder="Nombre" value={socioData.nombre}
+                           onChange={handleInputChange}/>
+                    <input type="text" name="apellidos" placeholder="Apellidos" value={socioData.apellidos}
+                           onChange={handleInputChange}/>
+                    <input type="text" name="codigo_unico" placeholder="Código Único" value={socioData.codigo_unico}
+                           disabled/>
+                    <input type="text" name="direccion" placeholder="Direccion" value={socioData.direccion}
+                           onChange={handleInputChange}/>
+                    <input type="text" name="telefono" placeholder="Telefono" value={socioData.telefono}
+                           onChange={handleInputChange}/>
+                    <input type="date" name="fecha_nacimiento" placeholder="Fecha de Nacimiento"
+                           value={socioData.fecha_nacimiento}
+                           onChange={handleInputChange}/>
+                    <input type="date" name="fecha_registro" placeholder="Fecha de Registro"
+                           value={socioData.fecha_registro}
+                           onChange={handleInputChange}/>
+                    <select name="estado_membresia" value={socioData.estado_membresia} onChange={handleInputChange}>
+                        <option value="">Seleccione el estado de membresía</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                        <option value="suspendido">Suspendido</option>
+                    </select>
+                </form>
+                    <button onClick={saveSocioData} className="save-button">Guardar Datos del Socio</button>
                 <Modal isOpen={showModal} onClose={closeModal}>
                     <p>La captura de imágenes se ha completado.</p>
                 </Modal>

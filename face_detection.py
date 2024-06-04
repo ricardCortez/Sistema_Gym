@@ -13,7 +13,7 @@ def process_image_data(image_data):
     return img
 
 
-def capture_faces(image_data, face_id, current_count):
+def capture_faces(image_data, codigo_unico, current_count):
     img = process_image_data(image_data)
     face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
@@ -27,8 +27,7 @@ def capture_faces(image_data, face_id, current_count):
     max_size = (200, 200)  # Tamaño máximo del rostro a detectar
 
     faces = face_classifier.detectMultiScale(gray, scale_factor, min_neighbors, minSize=min_size, maxSize=max_size)
-
-    path = f"/Sistema_gym/faces/{face_id}"
+    path = f"/Sistema_gym/faces/{codigo_unico}"
     os.makedirs(path, exist_ok=True)
 
     count = current_count
